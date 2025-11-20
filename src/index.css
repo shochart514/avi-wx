@@ -1,0 +1,321 @@
+/* Global reset-ish */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: #f3f4f6;
+  color: #0f172a;
+}
+
+/* Simple spin animation (used for the refresh icon) */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Utility: zero padding (used on the map card content) */
+.p-0 {
+  padding: 0 !important;
+}
+
+/* Layout wrappers */
+.app-root {
+  min-height: 100vh;
+  padding: 24px;
+  background: linear-gradient(to bottom, #e5e7eb, #ffffff);
+}
+
+.app-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.app-header {
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.app-header-main h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.app-header-main p {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+/* If you ever re-enable header actions (inputs/buttons) */
+.app-header-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .app-header-actions {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.app-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Inputs & buttons */
+.input {
+  width: 140px;
+  max-width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #cbd5f5;
+  font-size: 14px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  background: #ffffff;
+}
+
+.button {
+  border-radius: 10px;
+  border: 1px solid transparent;
+  padding: 8px 12px;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.1);
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.button:hover {
+  background: #020617;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.button-outline {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #cbd5f5;
+}
+
+.button-outline:hover {
+  background: #f8fafc;
+}
+
+/* Little “Day” pill (if you re-enable it) */
+.pill {
+  display: none;
+}
+@media (min-width: 768px) {
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    border: 1px solid #e2e8f0;
+    padding: 6px 12px;
+    font-size: 12px;
+    opacity: 0.7;
+    background: #ffffff;
+  }
+}
+
+/* Error box */
+.error-box {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  font-size: 14px;
+  color: #b91c1c;
+}
+
+/* Main grid */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 900px) {
+  .main-grid {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+}
+
+/* Cards */
+.card {
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.card-content {
+  padding: 16px;
+}
+
+/* Section headers inside cards */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.section-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.section-subtitle {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* METAR/TAF text block */
+.code-block {
+  white-space: pre-wrap;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* KVP grid */
+.kvp-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+@media (min-width: 900px) {
+  .kvp-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.kvp {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kvp-label {
+  opacity: 0.7;
+}
+
+.kvp-value {
+  font-weight: 500;
+}
+
+/* PIREPs list */
+.pirep-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pirep-item {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 8px;
+  margin-top: 6px;
+}
+
+.pirep-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.pirep-body {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+/* Favorites */
+.fav-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  padding: 4px 10px;
+  font-size: 13px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.07);
+}
+
+.fav-chip button {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.fav-primary {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  font-size: 13px;
+}
+
+/* Quick links */
+.link-list {
+  list-style: disc;
+  padding-left: 20px;
+  margin: 4px 0 0 0;
+  font-size: 13px;
+}
+
+.link-list a {
+  color: #0f172a;
+  text-decoration: underline;
+}
+
+/* Footer */
+.app-footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 11px;
+  opacity: 0.6;
+}
