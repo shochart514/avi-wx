@@ -391,21 +391,31 @@ export default function AviWxDashboard() {
   return (
     <div className="app-root">
       <div className="app-container">
-        <header className="app-header">
-          <div className="app-header-main">
-            <h1>AviWx Lobby Display</h1>
-            <p>
-              Aéroports: {LOBBY_STATIONS.join(" • ")} — rotation toutes{" "}
-              {STATION_ROTATION_MS / 1000}s
-            </p>
-            <p style={{ opacity: 0.7, fontSize: 12 }}>
-              Vue actuelle:{" "}
-              {currentSlide === "weather"
-                ? "Météo (METAR / TAF / PIREPs)"
-                : "Circuits CYJN"}
-            </p>
-          </div>
+        <header
+          className="dashboard-header"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            padding: "10px 20px",
+            background: "rgba(0,0,0,0.5)",
+            borderBottom: "2px solid rgba(255,255,255,0.2)",
+          }}
+        >
+          <img
+            src="/skynova-logo.png"
+            alt="Skynova Aviation"
+            style={{
+              height: "60px",
+              marginRight: "20px",
+              filter: "drop-shadow(0 0 4px rgba(0,0,0,0.8))",
+            }}
+          />
+
+          <h1 style={{ fontSize: "2rem", flex: 1 }}>
+            Conditions météo — St-Jean-sur-Richelieu & région
+          </h1>
         </header>
+
 
         {error && (
           <div className="error-box">
