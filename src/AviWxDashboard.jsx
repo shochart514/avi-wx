@@ -29,11 +29,23 @@ const SLIDE_ROTATION_MS = 30000;
 // Circuits app URL
 const CIRCUITS_URL = "https://yjn-circuits.netlify.app/?lang=fr";
 
-// Backend base URL (new port)
+// Backend base URL
 const WX_BASE =
   import.meta.env.VITE_WX_BASE_URL || "http://localhost:5055";
 
-  console.log("WX_BASE frontend =", WX_BASE);
+// -----------------------------
+//  STATION METADATA (METAR vs LWIS)
+// -----------------------------
+const STATION_META = {
+  CYJN: { type: "LWIS", label: "CYJN" },
+  CYHU: { type: "METAR", label: "CYHU" },
+  CYUL: { type: "METAR", label: "CYUL" },
+  CYMX: { type: "METAR", label: "CYMX" },
+};
+
+function getStationType(station) {
+  return STATION_META[station]?.type || "METAR";
+}
 
 // -----------------------------
 //  METAR PARSING (simple, not perfect)
@@ -105,89 +117,61 @@ function parseMetar(raw_text, observation_time) {
 //  FETCH REAL DATA FROM BACKEND
 // -----------------------------
 async function getMetar(station) {
-  const url = `${WX_BASE}/metar?station=${encodeURIComponent(station)}`;
-  console.log("Fetching METAR from", url);
-
-  try {
-    const res = await fetch(url);
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      console.error("METAR HTTP error", res.status, data);
-      return {
-        raw_text: `Erreur METAR HTTP ${res.status} pour ${station}`,
-        observation_time: null,
-      };
-    }
-
-    return parseMetar(data.raw_text, data.observation_time);
-  } catch (e) {
-    console.error("METAR network error", e);
-    return {
-      raw_text: `Erreur réseau METAR pour ${station}`,
-      observation_time: null,
-    };
+  const res = await fetch(
+    `${WX_BASE}/metar?station=${encodeURIComponent(station)}`
+  );
+  if (!res.ok) {
+    throw new Error("METAR fetch failed");
   }
+  const data = await res.json();
+  return parseMetar(data.raw_text, data.observation_time);
 }
 
 async function getTaf(station) {
-  const url = `${WX_BASE}/taf?station=${encodeURIComponent(station)}`;
-  console.log("Fetching TAF from", url);
-
-  try {
-    const res = await fetch(url);
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      console.error("TAF HTTP error", res.status, data);
-      return {
-        raw_text: `Erreur TAF HTTP ${res.status} pour ${station}`,
-        issue_time: null,
-      };
-    }
-
-    return {
-      raw_text: data.raw_text || "—",
-      issue_time: data.issue_time || null,
-    };
-  } catch (e) {
-    console.error("TAF network error", e);
-    return {
-      raw_text: `Erreur réseau TAF pour ${station}`,
-      issue_time: null,
-    };
+  const res = await fetch(
+    `${WX_BASE}/taf?station=${encodeURIComponent(station)}`
+  );
+  if (!res.ok) {
+    throw new Error("TAF fetch failed");
   }
+  const data = await res.json();
+  return {
+    raw_text: data.raw_text || "—",
+    issue_time: data.issue_time || null,
+  };
 }
 
-
-async function getPireps() {
-  const now = new Date().toISOString();
-  return [
-    {
-      receive_time: now,
-      raw_text:
-        "CYUL UA /OV CYJN 020010 /FL060 /TP C172 /TB MOD /SK BKN060 (données démo)",
-    },
-  ];
+// PIREPs: for now, no real fetch → return empty list
+async function getPireps(station) {
+  return [];
 }
 
 // -----------------------------
 //  WEATHER SLIDE COMPONENT
 // -----------------------------
 function WeatherSlide({ station, metar, taf, pireps, loading, obsTime }) {
+  const stationType = getStationType(station); // "METAR" or "LWIS"
+
   return (
     <div className="single-column weather-slide">
+      {/* BIG BANNER */}
       <div className="station-banner">
-        <span className="station-banner-label">Aéroport actuel</span>
+        <span className="station-banner-label">
+          Aéroport actuel
+          {stationType === "LWIS" ? " (LWIS)" : ""}
+        </span>
         <span className="station-banner-code">{station}</span>
       </div>
 
+      {/* METAR / LWIS BLOCK */}
       <div className="card">
         <div className="card-content">
           <div className="section-header">
             <div className="section-header-left">
               <Plane size={20} />
-              <h2 className="section-title">METAR — {station}</h2>
+              <h2 className="section-title">
+                {stationType === "LWIS" ? "LWIS" : "METAR"} — {station}
+              </h2>
             </div>
             <div style={{ opacity: 0.7, fontSize: 12 }}>
               <RefreshCw size={16} className={loading ? "spin" : ""} />
@@ -248,11 +232,15 @@ function WeatherSlide({ station, metar, taf, pireps, loading, obsTime }) {
           </div>
 
           <p style={{ marginTop: 12, opacity: 0.6, fontSize: 12 }}>
-            Observation time: {obsTime}
+            Heure d&apos;observation: {obsTime}
+            {stationType === "LWIS"
+              ? " — Type: LWIS (Local Weather Information System)"
+              : ""}
           </p>
         </div>
       </div>
 
+      {/* TAF */}
       <div className="card" style={{ marginTop: 20 }}>
         <div className="card-content">
           <div className="section-header">
@@ -265,6 +253,7 @@ function WeatherSlide({ station, metar, taf, pireps, loading, obsTime }) {
         </div>
       </div>
 
+      {/* PIREPs */}
       <div className="card" style={{ marginTop: 20 }}>
         <div className="card-content">
           <div className="section-header">
@@ -274,19 +263,25 @@ function WeatherSlide({ station, metar, taf, pireps, loading, obsTime }) {
             </div>
           </div>
 
-          <ul className="pirep-list">
-            {pireps?.map((p, idx) => (
-              <li className="pirep-item" key={idx}>
-                <div className="pirep-header">
-                  <span>Nearby</span>
-                  <span style={{ opacity: 0.7 }}>
-                    {new Date(p.receive_time).toLocaleTimeString()}
-                  </span>
-                </div>
-                <div className="pirep-body">{p.raw_text}</div>
-              </li>
-            ))}
-          </ul>
+          {pireps && pireps.length > 0 ? (
+            <ul className="pirep-list">
+              {pireps.map((p, idx) => (
+                <li className="pirep-item" key={idx}>
+                  <div className="pirep-header">
+                    <span>Nearby</span>
+                    <span style={{ opacity: 0.7 }}>
+                      {new Date(p.receive_time).toLocaleTimeString()}
+                    </span>
+                  </div>
+                  <div className="pirep-body">{p.raw_text}</div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p style={{ marginTop: 8, fontSize: 14, color: "#6B7280" }}>
+              Aucun PIREP récent signalé dans ce secteur.
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -337,28 +332,27 @@ export default function AviWxDashboard() {
   const currentSlide = SLIDES[slideIndex];
 
   async function loadAll(stn) {
-  setLoading(true);
-  setError(null);
+    try {
+      setLoading(true);
+      setError(null);
 
-  try {
-    const [m, t, p] = await Promise.all([
-      getMetar(stn),
-      getTaf(stn),
-      getPireps(stn),
-    ]);
+      const [m, t, p] = await Promise.all([
+        getMetar(stn),
+        getTaf(stn),
+        getPireps(stn),
+      ]);
 
-    setStation(stn);
-    setMetar(m);
-    setTaf(t);
-    setPireps(p);
-  } catch (e) {
-    console.error("Unexpected loadAll error", e);
-    setError("Erreur lors du chargement des données météo (fatale).");
-  } finally {
-    setLoading(false);
+      setStation(stn);
+      setMetar(m);
+      setTaf(t);
+      setPireps(p);
+    } catch (e) {
+      console.error(e);
+      setError("Erreur lors du chargement des données météo.");
+    } finally {
+      setLoading(false);
+    }
   }
-}
-
 
   useEffect(() => {
     let i = 0;
@@ -391,31 +385,10 @@ export default function AviWxDashboard() {
   return (
     <div className="app-root">
       <div className="app-container">
-        <header
-          className="dashboard-header"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            padding: "10px 20px",
-            background: "rgba(0,0,0,0.5)",
-            borderBottom: "2px solid rgba(255,255,255,0.2)",
-          }}
-        >
-          <img
-            src="/skynova-logo.png"
-            alt="Skynova Aviation"
-            style={{
-              height: "60px",
-              marginRight: "20px",
-              filter: "drop-shadow(0 0 4px rgba(0,0,0,0.8))",
-            }}
-          />
-
-          <h1 style={{ fontSize: "2rem", flex: 1 }}>
-            Conditions météo — St-Jean-sur-Richelieu & région
-          </h1>
+        <header className="dashboard-header">
+          <img src="/skynova-logo.png" alt="Skynova Aviation" />
+          <h1>Conditions météo — St-Jean-sur-Richelieu &amp; région</h1>
         </header>
-
 
         {error && (
           <div className="error-box">
