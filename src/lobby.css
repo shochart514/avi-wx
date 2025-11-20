@@ -1,61 +1,61 @@
-/* GLOBAL THEME — Dark Aviation Mode */
+/* GLOBAL LIGHT THEME */
 body {
   margin: 0;
-  background: #0B0E11;
-  color: #E5E7EB;
+  background: #F4F6F9; /* light clean background */
+  color: #111827; /* dark text */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* HEADER */
 .dashboard-header {
-  background: #13171C;
+  background: #FFFFFF;
   padding: 20px 40px;
   display: flex;
   align-items: center;
-  border-bottom: 2px solid #1F242A;
+  border-bottom: 1px solid #E5E7EB;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
 
 .dashboard-header h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.9rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: #111827;
 }
 
 /* LOGO */
 .dashboard-header img {
-  height: 70px;
-  margin-right: 25px;
+  height: 65px;
+  margin-right: 22px;
   object-fit: contain;
 }
 
 /* CURRENT AIRPORT BAR */
 .station-banner {
-  background: #111827;
-  color: white;
+  background: #1F2937; /* dark navy */
+  color: #FFFFFF;
   padding: 14px 26px;
   margin: 20px;
-  border-radius: 12px;
+  border-radius: 14px;
   font-size: 1.2rem;
   font-weight: 600;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
 
 .station-banner-code {
-  font-size: 1.8rem;
+  font-size: 1.7rem;
   font-weight: 700;
-  color: #E63946; /* SKYNOVA RED */
+  color: #E63946; /* Skynova red */
 }
 
 /* CARDS */
 .card {
-  background: #1A1F24;
+  background: #FFFFFF;
   margin: 20px;
-  border-radius: 18px;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.45);
+  border-radius: 16px;
+  box-shadow: 0 5px 12px rgba(0,0,0,0.08);
 }
 
 .card-content {
@@ -66,11 +66,11 @@ body {
 .section-title {
   margin: 0;
   font-size: 1.4rem;
-  font-weight: 600;
-  color: white;
+  font-weight: 700;
+  color: #111827;
 }
 
-/* ICON HEADERS */
+/* SECTION HEADER */
 .section-header {
   display: flex;
   align-items: center;
@@ -85,16 +85,17 @@ body {
 
 /* METAR RAW BLOCK */
 .code-block {
-  background: #11161C;
-  color: #F3F4F6;
-  padding: 12px 14px;
+  background: #F9FAFB;
+  color: #1F2937;
+  padding: 14px 16px;
   border-radius: 8px;
   margin-top: 12px;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
+  border: 1px solid #E5E7EB;
   overflow-x: auto;
 }
 
-/* GRID FOR KVP ELEMENTS */
+/* GRID FOR INFO (wind, vis, temp, etc.) */
 .kvp-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -110,6 +111,7 @@ body {
 
 .kvp-value {
   font-size: 1.1rem;
+  color: #111827;
 }
 
 /* PIREPS */
@@ -120,7 +122,8 @@ body {
 }
 
 .pirep-item {
-  background: #11161C;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
   margin-bottom: 12px;
   padding: 12px 14px;
   border-radius: 10px;
@@ -129,17 +132,17 @@ body {
 .pirep-header {
   display: flex;
   justify-content: space-between;
-  color: #9CA3AF;
+  color: #4B5563;
   font-size: 0.9rem;
 }
 
 .pirep-body {
   margin-top: 6px;
   font-size: 1rem;
-  color: #F3F4F6;
+  color: #111827;
 }
 
-/* IFRAMES (Circuits slide) */
+/* IFRAMES */
 .iframe-wrapper {
   border-radius: 16px;
   overflow: hidden;
@@ -154,7 +157,7 @@ body {
 
 /* FOOTER */
 .app-footer {
-  color: #9CA3AF;
+  color: #6B7280;
   text-align: center;
   padding: 10px;
   font-size: 0.85rem;
