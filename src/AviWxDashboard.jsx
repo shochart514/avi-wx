@@ -33,6 +33,8 @@ const CIRCUITS_URL = "https://yjn-circuits.netlify.app/?lang=fr";
 const WX_BASE =
   import.meta.env.VITE_WX_BASE_URL || "http://localhost:5055";
 
+  console.log("WX_BASE frontend =", WX_BASE);
+
 // -----------------------------
 //  METAR PARSING (simple, not perfect)
 // -----------------------------
@@ -103,29 +105,60 @@ function parseMetar(raw_text, observation_time) {
 //  FETCH REAL DATA FROM BACKEND
 // -----------------------------
 async function getMetar(station) {
-  const res = await fetch(
-    `${WX_BASE}/metar?station=${encodeURIComponent(station)}`
-  );
-  if (!res.ok) {
-    throw new Error("METAR fetch failed");
+  const url = `${WX_BASE}/metar?station=${encodeURIComponent(station)}`;
+  console.log("Fetching METAR from", url);
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      console.error("METAR HTTP error", res.status, data);
+      return {
+        raw_text: `Erreur METAR HTTP ${res.status} pour ${station}`,
+        observation_time: null,
+      };
+    }
+
+    return parseMetar(data.raw_text, data.observation_time);
+  } catch (e) {
+    console.error("METAR network error", e);
+    return {
+      raw_text: `Erreur réseau METAR pour ${station}`,
+      observation_time: null,
+    };
   }
-  const data = await res.json();
-  return parseMetar(data.raw_text, data.observation_time);
 }
 
 async function getTaf(station) {
-  const res = await fetch(
-    `${WX_BASE}/taf?station=${encodeURIComponent(station)}`
-  );
-  if (!res.ok) {
-    throw new Error("TAF fetch failed");
+  const url = `${WX_BASE}/taf?station=${encodeURIComponent(station)}`;
+  console.log("Fetching TAF from", url);
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      console.error("TAF HTTP error", res.status, data);
+      return {
+        raw_text: `Erreur TAF HTTP ${res.status} pour ${station}`,
+        issue_time: null,
+      };
+    }
+
+    return {
+      raw_text: data.raw_text || "—",
+      issue_time: data.issue_time || null,
+    };
+  } catch (e) {
+    console.error("TAF network error", e);
+    return {
+      raw_text: `Erreur réseau TAF pour ${station}`,
+      issue_time: null,
+    };
   }
-  const data = await res.json();
-  return {
-    raw_text: data.raw_text || "—",
-    issue_time: data.issue_time || null,
-  };
 }
+
 
 async function getPireps() {
   const now = new Date().toISOString();
@@ -304,27 +337,28 @@ export default function AviWxDashboard() {
   const currentSlide = SLIDES[slideIndex];
 
   async function loadAll(stn) {
-    try {
-      setLoading(true);
-      setError(null);
+  setLoading(true);
+  setError(null);
 
-      const [m, t, p] = await Promise.all([
-        getMetar(stn),
-        getTaf(stn),
-        getPireps(stn),
-      ]);
+  try {
+    const [m, t, p] = await Promise.all([
+      getMetar(stn),
+      getTaf(stn),
+      getPireps(stn),
+    ]);
 
-      setStation(stn);
-      setMetar(m);
-      setTaf(t);
-      setPireps(p);
-    } catch (e) {
-      console.error(e);
-      setError("Erreur lors du chargement des données météo.");
-    } finally {
-      setLoading(false);
-    }
+    setStation(stn);
+    setMetar(m);
+    setTaf(t);
+    setPireps(p);
+  } catch (e) {
+    console.error("Unexpected loadAll error", e);
+    setError("Erreur lors du chargement des données météo (fatale).");
+  } finally {
+    setLoading(false);
   }
+}
+
 
   useEffect(() => {
     let i = 0;
